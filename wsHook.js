@@ -68,10 +68,11 @@ var wsHook = {};
       // if eventName is 'message'
       if (arguments[0] === 'message') {
         arguments[1] = (function (userFunc) {
-          return function instrumentAddEventListener () {
+          return async function instrumentAddEventListener () {
             arguments[0] = wsHook.after(new MutableMessageEvent(arguments[0]), WSObject.url, WSObject)
             if (arguments[0] === null) return
-            userFunc.apply(eventThis, arguments)
+            let [msgEvent, ...rest] = arguments
+            userFunc.apply(eventThis, [await Promise.resolve(msgEvent), ...rest])
           }
         })(arguments[1])
       }
@@ -82,10 +83,11 @@ var wsHook = {};
       'set': function () {
         var eventThis = this
         var userFunc = arguments[0]
-        var onMessageHandler = function () {
+        var onMessageHandler = async function () {
           arguments[0] = wsHook.after(new MutableMessageEvent(arguments[0]), WSObject.url, WSObject)
           if (arguments[0] === null) return
-          userFunc.apply(eventThis, arguments)
+          let [msgEvent, ...rest] = arguments
+          userFunc.apply(eventThis, [await Promise.resolve(msgEvent), ...rest])
         }
         WSObject._addEventListener.apply(this, ['message', onMessageHandler, false])
       }
