@@ -35,6 +35,14 @@ wsHook.after = function(messageEvent, url, wsObject) {
  return null;
 }
 
+// if you want to do something asynchronous 
+wsHook.after = function(messageEvent, url, wsObject) {
+    console.log("Received message from " + url + " : " + messageEvent.data);
+    return new Promise((resolve) => {
+        // do something asynchronous here
+        resolve(messageEvent)
+    });
+}
 ```
 
 #### 3. Let your program play with WebSockets
